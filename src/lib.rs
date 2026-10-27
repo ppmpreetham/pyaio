@@ -82,3 +82,31 @@ impl Ring {
         self.enq.0.load(Ordering::Acquire) != self.deq.0.load(Ordering::Acquire)
     }
 }
+
+use pyo3::prelude::*;
+use std::sync::{Arc, Mutex};
+use tokio::runtime::Handle;
+
+static REGISTRY: Mutex<Vec<Arc<Bridge>>> = Mutex::new(Vec::new());
+
+pub struct Bridge {
+    pub ring: Ring,
+    pub event_loop: Py<PyAny>,
+    pub handle: Handle,
+}
+
+impl Bridge {
+    pub fn for_loop(py: Python<'_>, lp: &Bound<'_, PyAny>) -> PyResult<Arc<Self>> {
+        let mut reg = REGISTRY.lock().unwrap();
+        if let Some(b) = reg.iter().find(|b| b.event_loop.as_ptr() == lp.as_ptr()) {
+            return Ok(b.clone());
+        }
+        let bridge = Arc::new(Self {
+            ring: Ring::new(),
+            event_loop: lp.clone().unbind(),
+            handle: Handle::current(),
+        });
+        reg.push(bridge.clone());
+        Ok(bridge)
+    }
+}
