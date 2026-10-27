@@ -110,3 +110,29 @@ impl Bridge {
         Ok(bridge)
     }
 }
+
+use std::task::{RawWaker, RawWakerVTable, Waker};
+use tokio::task::AbortHandle;
+
+fn noop_raw_waker() -> RawWaker {
+    fn noop(_: *const ()) {}
+    static VTABLE: RawWakerVTable = RawWakerVTable::new(|p| RawWaker::new(p, &VTABLE), noop, noop, noop);
+    RawWaker::new(std::ptr::null(), &VTABLE)
+}
+
+pub fn noop_waker() -> Waker {
+    unsafe { Waker::from_raw(noop_raw_waker()) }
+}
+
+#[pyclass]
+pub struct AbortOnCancel(pub AbortHandle);
+
+#[pymethods]
+impl AbortOnCancel {
+    fn __call__(&self, fut: Bound<'_, PyAny>) -> PyResult<()> {
+        if fut.call_method0("cancelled")?.is_truthy()? {
+            self.0.abort();
+        }
+        Ok(())
+    }
+}
