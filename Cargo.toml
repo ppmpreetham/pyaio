@@ -2,9 +2,12 @@
 name = "pyaio"
 version = "0.1.0"
 edition = "2021"
-description = "Tokio to AsyncIO bridge. 40% Faster than pyo3-async-runtimes"
+description = "Tokio to AsyncIO bridge. Uses Ring. 40% Faster than pyo3-async-runtimes"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/ppmpreetham/pyaio"
 
 [workspace]
+
 
 [lints]
 workspace = true
