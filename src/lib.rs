@@ -21,6 +21,7 @@ use std::task::{Context, Poll, RawWaker, RawWakerVTable, Waker};
 use std::thread::Thread;
 
 mod compat;
+mod demo;
 pub use compat::{err, get_running_loop, into_future_with_locals, tokio, TaskLocals};
 
 type Job = Box<dyn FnOnce(Python<'_>) + Send + 'static>;
