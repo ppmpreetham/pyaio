@@ -4,10 +4,49 @@ version = "0.1.0"
 edition = "2021"
 description = "Tokio to AsyncIO bridge. 40% Faster than pyo3-async-runtimes"
 
+[workspace]
+
+[lints]
+workspace = true
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -2 }
+pedantic = { level = "warn", priority = -2 }
+perf = { level = "warn", priority = -1 }
+complexity = { level = "warn", priority = -1 }
+inline_always = "allow"
+unseparated_literal_suffix = "allow"
+similar_names = "allow"
+missing_panics_doc = "allow"
+missing_errors_doc = "allow"
+absolute_paths = "allow"
+module_name_repetitions = "allow"
+doc_markdown = "allow"
+too_many_lines = "allow"
+unused_self = "allow"
+cast_possible_truncation = "allow"
+cast_sign_loss = "allow"
+cast_precision_loss = "allow"
+unreadable_literal = "allow"
+implicit_hasher = "allow"
+
+significant_drop_tightening = "warn"
+redundant_clone = "warn"
+use_self = "warn"
+redundant_else = "warn"
+or_fun_call = "warn"
+missing_const_for_fn = "warn"
+derive_partial_eq_without_eq = "warn"
+
 [lib]
 name = "pyaio_faq"
 crate-type = ["cdylib", "rlib"]
 
+[features]
+default = []
+io_uring = ["dep:libc"]
+
 [dependencies]
 pyo3 = { version = "0.29", features = ["extension-module"] }
 tokio = { version = "1", features = ["rt", "rt-multi-thread", "sync", "time"] }
+libc = { version = "0.2", optional = true }
